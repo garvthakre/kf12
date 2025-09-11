@@ -39,6 +39,45 @@ const UserModel = {
   },
 
   /**
+   * Create or update user with password hash
+   * @param {Object} userData - User information
+   * @returns {Promise<Object>} - User object
+   */
+  async create(userData) {
+    const {
+      tenant_id,
+      email,
+      name,
+      role,
+      password_hash
+    } = userData;
+
+    const query = `
+      INSERT INTO team_users (id, tenant_id, email, name, role, password_hash, is_active)
+      VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6)
+      ON CONFLICT (email, tenant_id) 
+      DO UPDATE SET 
+        name = EXCLUDED.name,
+        role = EXCLUDED.role,
+        password_hash = EXCLUDED.password_hash,
+        is_active = EXCLUDED.is_active
+      RETURNING *
+    `;
+
+    const values = [
+      tenant_id,
+      email,
+      name,
+      role || 'agent',
+      password_hash,
+      true
+    ];
+
+    const { rows } = await db.query(query, values);
+    return rows[0];
+  },
+
+  /**
    * Validate if user exists and is active in tenant
    * @param {string} userId - User UUID
    * @param {string} tenantId - Tenant UUID
@@ -100,37 +139,7 @@ const UserModel = {
     return rows;
   },
 
-  /**
-   * Create new user
-   * @param {Object} userData - User information
-   * @returns {Promise<Object>} - New user object
-   */
-  async create(userData) {
-    const {
-      tenant_id,
-      email,
-      name,
-      role
-    } = userData;
-
-    const query = `
-      INSERT INTO team_users (id, tenant_id, email, name, role, is_active)
-      VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
-      RETURNING *
-    `;
-
-    const values = [
-      tenant_id,
-      email,
-      name,
-      role || 'agent',
-      true
-    ];
-
-    const { rows } = await db.query(query, values);
-    return rows[0];
-  },
-
+ 
   /**
    * Update user information
    * @param {string} userId - User UUID
@@ -143,7 +152,8 @@ const UserModel = {
       email,
       name,
       role,
-      is_active
+      is_active,
+      password_hash
     } = userData;
 
     const query = `
@@ -152,8 +162,9 @@ const UserModel = {
         email = COALESCE($1, email),
         name = COALESCE($2, name),
         role = COALESCE($3, role),
-        is_active = COALESCE($4, is_active)
-      WHERE id = $5 AND tenant_id = $6
+        is_active = COALESCE($4, is_active),
+        password_hash = COALESCE($5, password_hash)
+      WHERE id = $6 AND tenant_id = $7
       RETURNING *
     `;
 
@@ -162,6 +173,7 @@ const UserModel = {
       name,
       role,
       is_active,
+      password_hash,
       userId,
       tenantId
     ];

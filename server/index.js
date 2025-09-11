@@ -31,9 +31,9 @@ const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'CRM Lead Management API',
+      title: 'KFCRM FAIREX API',
       version: '1.0.0',
-      description: 'API documentation for the CRM Lead Management system with multi-tenant support',
+      description: 'API documentation for the KFCRM FAIREX',
       contact: {
         name: 'API Support',
         email: 'support@crm-system.com',
@@ -95,7 +95,7 @@ app.get('/health', (req, res) => {
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'Welcome to CRM Lead Management API',
+    message: 'Welcome to KFCRM  FAIREX API',
     documentation: `/api-docs`,
     health: '/health',
     version: '1.0.0'

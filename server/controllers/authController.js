@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { sendError, sendSuccess } from '../utils/response.js';
 import UserModel from '../models/User.js';
 
@@ -21,8 +22,15 @@ export const authController = {
         return sendError(res, 401, 'Invalid credentials');
       }
 
-      // For demo purposes, assuming password validation
-      // In production, use bcrypt.compare(password, user.password_hash)
+      // Validate password
+  
+      // In production, ensure all users have proper password hashes
+      
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+        if (!isPasswordValid) {
+          return sendError(res, 401, 'Invalid credentials');
+        }
+        
 
       // Generate JWT token
       const token = jwt.sign(
@@ -38,6 +46,7 @@ export const authController = {
 
       sendSuccess(res, 200, {
         access_token: token,
+        token_type: 'Bearer',
         expires_in: 86400, // 24 hours in seconds
         user: {
           id: user.id,
@@ -61,12 +70,9 @@ export const authController = {
    */
   async getCurrentUser(req, res) {
     try {
-      const user = await UserModel.findByIdWithTenant(req.user.id);
+      // req.user is already set by the authenticateToken middleware
+      const user = req.user;
       
-      if (!user) {
-        return sendError(res, 404, 'User not found');
-      }
-
       sendSuccess(res, 200, {
         id: user.id,
         name: user.name,
