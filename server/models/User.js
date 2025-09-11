@@ -39,7 +39,7 @@ const UserModel = {
   },
 
   /**
-   * Create or update user with password hash
+   * Create or update user with password
    * @param {Object} userData - User information
    * @returns {Promise<Object>} - User object
    */
@@ -49,17 +49,17 @@ const UserModel = {
       email,
       name,
       role,
-      password_hash
+      password
     } = userData;
 
     const query = `
-      INSERT INTO team_users (id, tenant_id, email, name, role, password_hash, is_active)
+      INSERT INTO team_users (id, tenant_id, email, name, role, password, is_active)
       VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6)
       ON CONFLICT (email, tenant_id) 
       DO UPDATE SET 
         name = EXCLUDED.name,
         role = EXCLUDED.role,
-        password_hash = EXCLUDED.password_hash,
+        password = EXCLUDED.password,
         is_active = EXCLUDED.is_active
       RETURNING *
     `;
@@ -69,7 +69,7 @@ const UserModel = {
       email,
       name,
       role || 'agent',
-      password_hash,
+      password,
       true
     ];
 
@@ -139,7 +139,6 @@ const UserModel = {
     return rows;
   },
 
- 
   /**
    * Update user information
    * @param {string} userId - User UUID
@@ -153,7 +152,7 @@ const UserModel = {
       name,
       role,
       is_active,
-      password_hash
+      password
     } = userData;
 
     const query = `
@@ -163,7 +162,7 @@ const UserModel = {
         name = COALESCE($2, name),
         role = COALESCE($3, role),
         is_active = COALESCE($4, is_active),
-        password_hash = COALESCE($5, password_hash)
+        password = COALESCE($5, password)
       WHERE id = $6 AND tenant_id = $7
       RETURNING *
     `;
@@ -173,7 +172,7 @@ const UserModel = {
       name,
       role,
       is_active,
-      password_hash,
+      password,
       userId,
       tenantId
     ];

@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { sendError } from '../utils/response.js';
 import User from '../models/User.js';
 import db from '../config/db.js';
+import format from "pg-format";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -10,11 +11,13 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
  */
 const setTenantContext = async (tenantId) => {
   try {
-    await db.query('SET LOCAL app.tenant_id = $1', [tenantId]);
+    const query = format("SET LOCAL app.tenant_id = %L", tenantId);
+    await db.query(query);
   } catch (error) {
-    console.error('Error setting tenant context:', error);
+    console.error("Error setting tenant context:", error);
   }
 };
+
 
 /**
  * JWT Authentication middleware

@@ -4,6 +4,7 @@ import ContactModel from '../models/Contact.js';
 import TagModel from '../models/Tag.js';
 import UserModel from '../models/User.js';
 import db from '../config/db.js';
+import format from "pg-format";
 
 export const leadsController = {
   /**
@@ -45,7 +46,9 @@ export const leadsController = {
     
     try {
       await client.query('BEGIN');
-      await client.query('SET LOCAL app.tenant_id = $1', [req.user.tenant_id]);
+      const setTenantSQL = format("SET LOCAL app.tenant_id = %L", req.user.tenant_id);
+await client.query(setTenantSQL);
+
 
       const { contact, ...leadData } = req.body;
       let contactId = null;
@@ -162,7 +165,9 @@ export const leadsController = {
 
     try {
       await client.query('BEGIN');
-      await client.query('SET LOCAL app.tenant_id = $1', [req.user.tenant_id]);
+ const setTenantSQL = format("SET LOCAL app.tenant_id = %L", req.user.tenant_id);
+await client.query(setTenantSQL);
+
 
       const { id } = req.params;
       const { tags } = req.body;

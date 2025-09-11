@@ -22,15 +22,16 @@ export const authController = {
         return sendError(res, 401, 'Invalid credentials');
       }
 
+      // Check if user has a password
+      if (!user.password) {
+        return sendError(res, 401, 'Account not properly configured. Please contact administrator.');
+      }
+
       // Validate password
-  
-      // In production, ensure all users have proper password hashes
-      
-        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-        if (!isPasswordValid) {
-          return sendError(res, 401, 'Invalid credentials');
-        }
-        
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return sendError(res, 401, 'Invalid credentials');
+      }
 
       // Generate JWT token
       const token = jwt.sign(
