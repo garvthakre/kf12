@@ -19,6 +19,8 @@ import webhookRoutes from './routes/webhookRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import tasksRoutes from './routes/taskRoutes.js';
 import interactionsRoutes from './routes/interactionRoutes.js';
+import opportunityRoutes from './routes/opportunityRoutes.js';
+import pipelineRoutes from './routes/pipelineRoutes.js';
 // Load environment variables
 dotenv.config();
 
@@ -90,7 +92,8 @@ app.use('/api/webhooks',webhookRoutes);
 app.use('/api/contacts',contactRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/interactions', interactionsRoutes);
-
+app.use('/api/opportunities',opportunityRoutes);
+app.use('/api/pipelines',pipelineRoutes);
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ 
